@@ -11,7 +11,7 @@ export enum BookingType {
 
 export interface Booking {
   id: string;
-  time: TimeStamp;
+  time: TimeStamp | number;
   duration: Seconds;
   userId: string;
   status: BookingType;
@@ -19,6 +19,8 @@ export interface Booking {
 
 export interface IBooking extends Booking {
   title: string;
+  date: string;
   startTime: moment.Moment;
   endTime: moment.Moment;
+  conflictWith?: string[];
 }

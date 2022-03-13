@@ -2,21 +2,22 @@ import { useEffect } from 'react';
 import moment from 'moment';
 import { Box, Container, Flex, Grid, GridItem } from '@chakra-ui/layout';
 import { generateCalendarHeader } from './CalendarHeader';
-import { Booking, BookingType } from '../types';
+import { Booking, BookingType, IBooking } from '../types';
 import cssStyles from './calendar.module.css';
 import cx from 'classnames';
 
 interface CalendarProps {
-  bookings: Booking[];
+  bookings: IBooking[];
+  newBookings: IBooking[];
 }
 
 const startMonth = '2020-03';
 const daysInMonth = moment(startMonth).daysInMonth();
 
-export const GridCalendar = ({ bookings }: CalendarProps) => {
+export const GridCalendar = ({ bookings, newBookings }: CalendarProps) => {
   const generateMonthRow = () => {
     const rows = [];
-    const generatedColumns = generateTableColumn(bookings);
+    const generatedColumns = generateTableColumn([...bookings, ...newBookings]);
 
     for (let day = 0; day < daysInMonth; day++) {
       const labelColumn = (
@@ -41,16 +42,15 @@ export const GridCalendar = ({ bookings }: CalendarProps) => {
     return [generateCalendarHeader(), rows];
   };
 
-  const generateTableColumn = (bookings: Booking[]) => {
+  const generateTableColumn = (bookings: IBooking[]) => {
     const monthArray = Array(daysInMonth);
     bookings.forEach((booking) => {
       const itemBookingDate = moment(booking.time).date();
+      debugger;
       const element = (
         <GridItem
-          gridColumnStart={moment(booking.time).hour()}
-          gridColumnEnd={moment(booking.time)
-            .add(booking.duration, 'ms')
-            .hour()}
+          gridColumnStart={moment(booking.startTime).hour() + 2}
+          gridColumnEnd={moment(booking.endTime).hour() + 2}
           gridRowStart={1}
           alignSelf="center"
         >
@@ -80,7 +80,7 @@ export const GridCalendar = ({ bookings }: CalendarProps) => {
   }, [bookings]);
   return (
     <Container style={{ width: '100%' }}>
-      <h2>I am calendar</h2>
+      <h2>Bookings</h2>
       <Flex flexDirection={'column'}>
         <Box flexDirection={'column'}>
           <Grid

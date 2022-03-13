@@ -2,32 +2,33 @@ import { useState, useEffect } from 'react';
 import Dropzone from 'react-dropzone';
 import './App.css';
 import { GridCalendar } from './components/CalendarGridView';
-import { Booking, BookingType } from './types';
-import { convertBooking, toJSON } from './utils/utils';
+import { Booking, BookingType, IBooking } from './types';
+import { convertBooking, markBookingConflicts, toJSON } from './utils/utils';
 
 const apiUrl = 'http://localhost:3001';
 
 export const App = () => {
-  const [bookings, setBookings] = useState<Booking[]>([]);
-  const [newBookings, setNewBookings] = useState<Booking[]>([]);
+  const [bookings, setBookings] = useState<IBooking[]>([]);
+  const [newBookings, setNewBookings] = useState<IBooking[]>([]);
 
   useEffect(() => {
-    fetch(`${apiUrl}/bookings`)
-      .then((response) => response.json())
-      .then((result) => {
-        return result.map((item: Booking) => {
-          item['status'] = BookingType.Existing;
-          return item;
-        });
-      })
-      .then((result) => convertBooking(result))
-      .then(setBookings);
-  }, []);
+    if (bookings.length === 0) {
+      fetch(`${apiUrl}/bookings`)
+        .then((response) => response.json())
+        .then((result) => {
+          return result.map((item: Booking) => {
+            item['status'] = BookingType.Existing;
+            return item;
+          });
+        })
+        .then((result) => convertBooking(result))
+        .then(setBookings);
+    }
+  }, [bookings, newBookings]);
 
   const onDrop = (files: File[]) => {
     if (files.length > 0) {
       // TODO support multiple files upload at one go
-      console.log(files);
       const reader = new FileReader();
 
       try {
@@ -39,7 +40,15 @@ export const App = () => {
               item['status'] = BookingType.New;
               return item;
             });
-            if (parsedBookings) setNewBookings(parsedBookings);
+            if (parsedBookings) {
+              const convertedBookings = convertBooking(parsedBookings);
+              const sanitizeBookings = markBookingConflicts(
+                bookings,
+                convertedBookings
+              );
+              console.log(sanitizeBookings);
+              setNewBookings(sanitizeBookings);
+            }
           }
         };
         reader.readAsBinaryString(files[0]);
@@ -63,22 +72,9 @@ export const App = () => {
           )}
         </Dropzone>
       </div>
-      <GridCalendar bookings={bookings} newBookings={newBookings} />
+
       <div className="App-main">
-        <p>Existing bookings:</p>
-        {/* {bookings.map((booking, i) => {
-          const date = new Date(booking.time);
-          const duration = booking.duration / (60 * 1000);
-          return (
-            <p key={i} className="App-booking">
-              <span className="App-booking-time">{date.toString()}</span>
-              <span className="App-booking-duration">
-                {duration.toFixed(1)}
-              </span>
-              <span className="App-booking-user">{booking.userId}</span>
-            </p>
-          );
-        })} */}
+        <GridCalendar bookings={bookings} newBookings={newBookings} />
       </div>
     </div>
   );
