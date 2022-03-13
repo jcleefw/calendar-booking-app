@@ -1,6 +1,10 @@
-import { Booking } from '../App';
+import { useEffect } from 'react';
 import moment from 'moment';
 import { Box, Container, Flex, Grid, GridItem } from '@chakra-ui/layout';
+import { generateCalendarHeader } from './CalendarHeader';
+import { Booking, BookingType } from '../types';
+import cssStyles from './calendar.module.css';
+import cx from 'classnames';
 
 interface CalendarProps {
   bookings: Booking[];
@@ -10,81 +14,56 @@ const startMonth = '2020-03';
 const daysInMonth = moment(startMonth).daysInMonth();
 
 export const GridCalendar = ({ bookings }: CalendarProps) => {
-  const BookingType = {
-    existing: { id: 1, title: 'Existing bookings' },
-    new: { id: 2, title: 'new booking' },
-  };
-
-  const convertBooking = (bookings: Booking[]) => {
-    return bookings.map((booking, index) => {
-      return {
-        id: index,
-        group: BookingType.existing.id,
-        title: `Booking with user ${booking.userId}`,
-        userId: booking.userId,
-        start_time: moment(booking.time),
-        end_time: moment(booking.time).add(booking.duration, 'ms'),
-      };
-    });
-  };
-
-  const generateTableHeader = () => {
-    const headers = [];
-    for (let count = 0; count < 24; count++) {
-      const hour = count.toString().length === 1 ? `0${count}` : count;
-      headers.push(<th className="column">{`${hour}:00`}</th>);
-    }
-    return [<th></th>, headers];
-  };
-
   const generateMonthRow = () => {
     const rows = [];
-    const generatedColumns = generateTableColumn();
+    const generatedColumns = generateTableColumn(bookings);
 
     for (let day = 0; day < daysInMonth; day++) {
       const labelColumn = (
-        <GridItem sx={{ ...styles.row }}>
+        <GridItem className={cssStyles.row}>
           {moment(`${startMonth}-${day + 1}`).format('DD/MM')}
         </GridItem>
       );
       const columns = [labelColumn, generatedColumns[day]];
 
       rows.push(
-        <GridItem sx={{ ...styles.row }}>
+        <GridItem className={cssStyles.row}>
           <Grid
             templateColumns="100px repeat(24, 1fr)"
             templateRows="repeat(3, 1fr)"
+            gridColumnGap="1px"
           >
             {columns}
           </Grid>
         </GridItem>
       );
     }
-    return rows;
+    return [generateCalendarHeader(), rows];
   };
 
-  const styles = {
-    row: {
-      height: '150px',
-      background: '#85838361',
-    },
-  };
-
-  const generateTableColumn = () => {
+  const generateTableColumn = (bookings: Booking[]) => {
     const monthArray = Array(daysInMonth);
-    bookings.forEach((item, index) => {
-      const itemBookingDate = moment(item.time).date();
-      console.log('item', item);
+    bookings.forEach((booking) => {
+      const itemBookingDate = moment(booking.time).date();
       const element = (
         <GridItem
-          height="30px"
-          bg="tomato"
-          gridColumnStart={moment(item.time).hour()}
-          gridColumnEnd={moment(item.time).add(item.duration, 'ms').hour()}
+          gridColumnStart={moment(booking.time).hour()}
+          gridColumnEnd={moment(booking.time)
+            .add(booking.duration, 'ms')
+            .hour()}
           gridRowStart={1}
           alignSelf="center"
         >
-          {item.userId},{moment(item.time).format('hh:mm')}
+          <Flex
+            className={cx(cssStyles.bookings, {
+              [cssStyles.booked]: booking.status === BookingType.Existing,
+              [cssStyles.new]: booking.status === BookingType.New,
+              [cssStyles.conflict]: booking.status === BookingType.Conflict,
+            })}
+          >
+            <span>Booking with {booking.userId}</span>
+            <span>at {moment(booking.time).format('hh:mm a')}</span>
+          </Flex>
         </GridItem>
       );
       if (monthArray[itemBookingDate - 1]) {
@@ -93,18 +72,18 @@ export const GridCalendar = ({ bookings }: CalendarProps) => {
         monthArray[itemBookingDate - 1] = [element];
       }
     });
-    console.log('monthArray', monthArray);
     return monthArray;
   };
 
-  console.log(convertBooking(bookings));
+  useEffect(() => {
+    console.log('bookings are:', bookings);
+  }, [bookings]);
   return (
     <Container style={{ width: '100%' }}>
       <h2>I am calendar</h2>
       <Flex flexDirection={'column'}>
         <Box flexDirection={'column'}>
           <Grid
-            // templateColumns="100px repeat(24, 1fr)"
             templateRows="100% repeat(31, 1fr}"
             gap={6}
             border={'1px solid: #ccc'}

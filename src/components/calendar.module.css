@@ -1,0 +1,33 @@
+.booked {
+  background: #c6eeb6;
+}
+
+.new {
+  background: #f3d581;
+}
+
+.conflict {
+  background: #f594b4;
+}
+
+.row {
+  height: 100px;
+  background: #85838361;
+}
+
+.headerColumn {
+  font-size: 14px;
+}
+
+.headerRow {
+  margin-top: 50px;
+}
+
+.bookings {
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  border-radius: 4;
+  font-size: 12px;
+}

@@ -1,17 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Dropzone from 'react-dropzone';
 import './App.css';
 import { GridCalendar } from './components/CalendarGridView';
+import { Booking, BookingType } from './types';
+import { convertBooking, toJSON } from './utils/utils';
 
 const apiUrl = 'http://localhost:3001';
-
-type TimeStamp = string;
-type Seconds = number;
-export interface Booking {
-  time: TimeStamp;
-  duration: Seconds;
-  userId: string;
-}
 
 export const App = () => {
   const [bookings, setBookings] = useState<Booking[]>([]);
@@ -20,17 +14,45 @@ export const App = () => {
   useEffect(() => {
     fetch(`${apiUrl}/bookings`)
       .then((response) => response.json())
+      .then((result) => {
+        return result.map((item: Booking) => {
+          item['status'] = BookingType.Existing;
+          return item;
+        });
+      })
+      .then((result) => convertBooking(result))
       .then(setBookings);
   }, []);
 
   const onDrop = (files: File[]) => {
-    console.log(files);
+    if (files.length > 0) {
+      // TODO support multiple files upload at one go
+      console.log(files);
+      const reader = new FileReader();
+
+      try {
+        reader.onload = () => {
+          if (reader.result) {
+            const csvFileRead = reader.result;
+            const data = toJSON(csvFileRead);
+            const parsedBookings = data?.map((item: Booking) => {
+              item['status'] = BookingType.New;
+              return item;
+            });
+            if (parsedBookings) setNewBookings(parsedBookings);
+          }
+        };
+        reader.readAsBinaryString(files[0]);
+      } catch (err) {
+        console.log('err reading file', err, files[0]);
+      }
+    }
   };
 
   return (
     <div className="App">
       <div className="App-header">
-        <Dropzone accept=".csv" onDrop={onDrop}>
+        <Dropzone accept=".csv" onDrop={onDrop} maxFiles={1}>
           {({ getRootProps, getInputProps }) => (
             <section>
               <div {...getRootProps()}>
@@ -41,8 +63,7 @@ export const App = () => {
           )}
         </Dropzone>
       </div>
-      {/* <Calendar bookings={bookings} /> */}
-      <GridCalendar bookings={bookings} />
+      <GridCalendar bookings={bookings} newBookings={newBookings} />
       <div className="App-main">
         <p>Existing bookings:</p>
         {/* {bookings.map((booking, i) => {
