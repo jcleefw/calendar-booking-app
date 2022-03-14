@@ -9,7 +9,7 @@
 
 .conflict {
   background: #f594b4;
-  opacity: 0.7;
+  opacity: 0.9;
 }
 
 .row {
@@ -21,8 +21,24 @@
   font-size: 14px;
 }
 
+.headerColumnDesc {
+  border: 1px solid #ccc;
+  flex-direction: column;
+  justify-content: center;
+  padding: 10px 0;
+  align-items: center;
+}
+
 .headerRow {
   margin-top: 50px;
+}
+
+.headerDescHour {
+  font-size: 1rem;
+  font-weight: 700;
+}
+.headerAmPm {
+  font-size: 0.8rem;
 }
 
 .bookings {

@@ -17,7 +17,6 @@ export interface Booking {
 
 export interface IBooking extends Exclude<Booking, 'duration'> {
   id: string;
-  title: string;
   date: string;
   duration: number;
   startTime: Date;

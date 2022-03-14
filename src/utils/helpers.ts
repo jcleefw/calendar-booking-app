@@ -3,7 +3,14 @@ import { v4 as uuidv4 } from 'uuid';
 import groupBy from 'lodash.groupby';
 import { format, add, areIntervalsOverlapping } from 'date-fns';
 
-// TODO test data ... make sure no white spce
+/**
+ * Converts a csv string file into JSON object.
+ * This function will trim off white space from key and value.
+ *
+ * @param csv
+ * @returns Booking[] | null
+ *
+ */
 export const toJSON = (csv: string | null | any): Booking[] | null => {
   if (csv && csv !== '') {
     const lines = csv.split('\n');
@@ -32,8 +39,17 @@ export const toJSON = (csv: string | null | any): Booking[] | null => {
   return null;
 };
 
-// TODO do we need this? write test, also double check typings for Ibooking
-export const decorateBooking = (bookings: Booking[] | IBooking[]) => {
+/**
+ *
+ * Decorate the booking object with all additional calculation for usage
+ *
+ * @param bookings
+ * @returns IBooking[]
+ */
+
+export const decorateBooking = (
+  bookings: Booking[] | IBooking[]
+): IBooking[] => {
   return bookings.map((booking) => {
     const startTime = new Date(booking.time);
     return {
@@ -42,17 +58,27 @@ export const decorateBooking = (bookings: Booking[] | IBooking[]) => {
       time: startTime.getTime(),
       date: format(startTime, 'yyyy-MM-dd'),
       id: booking.id ?? uuidv4(),
-      title: `Booking with user ${booking.userId}`,
       startTime: startTime,
       endTime: add(startTime, { minutes: Number(booking.duration) }),
     };
   });
 };
 
+/**
+ * Repopulate the new bookings and mark bookings as conflict if it overlaps with existing booking.
+ *
+ * If conflict is found, this function will update new booking with the following props
+ * - status: BookingType.New => BookingType.Conflict
+ * - conflictWith: Will provide array of existing ids that booking is in conflict with
+ *
+ * @param existingBookings
+ * @param newBookings
+ * @returns
+ */
 export const markBookingConflicts = (
   existingBookings: IBooking[],
   newBookings: IBooking[]
-) => {
+): IBooking[] => {
   // group bookings into dates with the id as ref
   const keyedExistingObject = groupBy(
     existingBookings,

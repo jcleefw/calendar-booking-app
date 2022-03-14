@@ -61,7 +61,16 @@ export const GridCalendar = ({ bookings, newBookings }: CalendarProps) => {
               [cssStyles.conflict]: booking.status === BookingType.Conflict,
             })}
           >
-            <span>Booking with {booking.userId}</span>
+            {booking.status === BookingType.Conflict && (
+              <span>Conflict for {booking.userId}</span>
+            )}
+            {booking.status === BookingType.Existing && (
+              <span>Booking with {booking.userId}</span>
+            )}
+            {booking.status === BookingType.New && (
+              <span>New Booking with {booking.userId}</span>
+            )}
+
             <span>at {format(booking.startTime, 'hh:mm aaa')}</span>
           </Flex>
         </GridItem>
@@ -80,7 +89,6 @@ export const GridCalendar = ({ bookings, newBookings }: CalendarProps) => {
   }, [bookings]);
   return (
     <Container style={{ width: '100%' }}>
-      <h2>Bookings</h2>
       <Flex flexDirection={'column'}>
         <Box flexDirection={'column'}>
           <Grid

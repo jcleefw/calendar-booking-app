@@ -10,15 +10,23 @@
 
 .App-header > section {
   margin: 0 auto;
-  padding: 50px 20px;
 }
 
-.App-title {
-  font-size: 1.5em;
+.App-dropzone {
+  padding: 50px 0;
+  cursor: pointer;
 }
 
-.App-intro {
-  font-size: large;
+.App-page-title {
+  font-size: 2rem;
+}
+
+.App-page-header {
+  height: 90px;
+  padding: 10px 20px 0;
+  align-items: center;
+  justify-content: space-between;
+  display: flex;
 }
 
 .App-booking-time {
@@ -34,4 +42,25 @@
 .App-booking-user {
   display: inline-block;
   width: 80px;
+}
+
+.App-btn-container {
+  margin-top: 20px;
+  text-transform: uppercase;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: fit-content;
+}
+.App-btn {
+  text-transform: uppercase;
+  padding: 10px 20px;
+  margin-right: 10px;
+  margin-bottom: 5px;
+}
+
+span.btn-sub-text {
+  font-size: 0.75rem;
+  text-transform: none;
+  color: #333;
 }
