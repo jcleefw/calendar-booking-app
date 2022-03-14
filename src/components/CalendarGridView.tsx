@@ -4,7 +4,7 @@ import { generateCalendarHeader } from './CalendarHeader';
 import { IBooking } from '../types';
 import cssStyles from './calendar.module.css';
 import { format, getDaysInMonth } from 'date-fns';
-import { generateGridColumn } from './GridColumn';
+import { generateGridColumns } from './GridColumn';
 
 interface CalendarProps {
   bookings: IBooking[];
@@ -17,7 +17,7 @@ export const daysInMonth = getDaysInMonth(startMonth);
 export const GridCalendar = ({ bookings, newBookings }: CalendarProps) => {
   const generateMonthRow = () => {
     const rows = [];
-    const generatedColumns = generateGridColumn([...bookings, ...newBookings]);
+    const generatedColumns = generateGridColumns([...bookings, ...newBookings]);
 
     for (let day = 0; day < daysInMonth; day++) {
       const labelColumn = (

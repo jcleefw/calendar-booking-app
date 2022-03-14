@@ -2,17 +2,13 @@
   text-align: center;
 }
 
-.App-header {
+.AppHeader {
   background-color: #222;
   color: white;
   padding: 20px 0;
 }
 
-.App-header > section {
-  margin: 0 auto;
-}
-
-.App-dropzone {
+.AppDropzone {
   padding: 50px 0;
   cursor: pointer;
 }
@@ -29,22 +25,7 @@
   display: flex;
 }
 
-.App-booking-time {
-  display: inline-block;
-  width: 400px;
-}
-
-.App-booking-duration {
-  display: inline-block;
-  width: 80px;
-}
-
-.App-booking-user {
-  display: inline-block;
-  width: 80px;
-}
-
-.App-btn-container {
+.btnContainer {
   margin-top: 20px;
   text-transform: uppercase;
   display: flex;
@@ -52,14 +33,14 @@
   align-items: center;
   height: fit-content;
 }
-.App-btn {
+.btn {
   text-transform: uppercase;
   padding: 10px 20px;
   margin-right: 10px;
   margin-bottom: 5px;
 }
 
-span.btn-sub-text {
+.btnSubText {
   font-size: 0.75rem;
   text-transform: none;
   color: #333;

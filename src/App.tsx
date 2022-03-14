@@ -1,7 +1,7 @@
 import { Flex } from '@chakra-ui/layout';
 import React, { useState, useEffect } from 'react';
 import Dropzone from 'react-dropzone';
-import './App.css';
+import styles from './App.module.css';
 import { GridCalendar } from './components/CalendarGridView';
 import { Booking, BookingType, IBooking } from './types';
 import { postData } from './utils/fetch';
@@ -86,12 +86,12 @@ export const App = () => {
   };
 
   return (
-    <div className="App">
-      <div className="App-header">
+    <div className={styles.App}>
+      <div className={styles.AppHeader}>
         <Dropzone accept=".csv" onDrop={onDrop} maxFiles={1}>
           {({ getRootProps, getInputProps }) => (
             <section>
-              <div className="App-dropzone" {...getRootProps()}>
+              <div className={styles.AppDropzone} {...getRootProps()}>
                 <input aria-label="Dropzone input" {...getInputProps()} />
                 <p>Drop some files here, or click to select files</p>
               </div>
@@ -101,26 +101,26 @@ export const App = () => {
       </div>
 
       <div className="App-main">
-        <Flex className="App-page-header">
-          <h2 className="App-page-title">Bookings</h2>
+        <Flex className={styles['App-page-header']}>
+          <h2 className={styles['App-page-title']}>Bookings</h2>
           <Flex>
             {newBookings.length > 0 && (
               <>
-                <Flex className="App-btn-container">
+                <Flex className={styles.btnContainer}>
                   <button
-                    className="App-btn"
+                    className={styles.btn}
                     disabled={isConfirmBooking}
                     onClick={confirmBooking}
                   >
                     Confirm bookings
                   </button>
-                  <span className="btn-sub-text">
+                  <span className={styles.btnSubText}>
                     * Unconflicted bookings only
                   </span>
                 </Flex>
-                <Flex className="App-btn-container">
+                <Flex className={styles.btnContainer}>
                   <button
-                    className="App-btn"
+                    className={styles.btn}
                     disabled={isConfirmBooking}
                     onClick={() => setNewBookings([])}
                   >

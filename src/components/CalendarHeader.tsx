@@ -5,18 +5,7 @@ import styles from './calendar.module.css';
 export const generateCalendarHeader = () => {
   const headers = [];
   for (let count = 0; count < 24; count++) {
-    headers.push(
-      <GridItem key={`column-header-${count}`} className={styles.headerColumn}>
-        <Flex className={styles.headerColumnDesc}>
-          <chakra.span className={styles.headerDescHour}>{`${
-            count === 0 ? 12 : count > 12 ? count - 12 : count
-          }`}</chakra.span>
-          <chakra.span className={styles.headerAmPm}>{`${
-            count > 11 ? 'pm' : 'am'
-          }`}</chakra.span>
-        </Flex>
-      </GridItem>
-    );
+    headers.push(<GridHeader index={count} />);
   }
   return (
     <GridItem key={'header'} className={styles.headerRow}>
@@ -33,6 +22,21 @@ export const generateCalendarHeader = () => {
           headers,
         ]}
       </Grid>
+    </GridItem>
+  );
+};
+
+const GridHeader = ({ index }: { index: number }) => {
+  return (
+    <GridItem key={`column-header-${index}`} className={styles.headerColumn}>
+      <Flex className={styles.headerColumnDesc}>
+        <chakra.span className={styles.headerDescHour}>{`${
+          index === 0 ? 12 : index > 12 ? index - 12 : index
+        }`}</chakra.span>
+        <chakra.span className={styles.headerAmPm}>{`${
+          index > 11 ? 'pm' : 'am'
+        }`}</chakra.span>
+      </Flex>
     </GridItem>
   );
 };
