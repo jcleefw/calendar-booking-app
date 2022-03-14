@@ -1,7 +1,5 @@
-import moment from 'moment';
-
 type TimeStamp = string;
-type Seconds = number;
+type Minutes = number | string;
 
 export enum BookingType {
   New = 'new',
@@ -10,17 +8,19 @@ export enum BookingType {
 }
 
 export interface Booking {
-  id: string;
+  id?: string;
   time: TimeStamp | number;
-  duration: Seconds;
+  duration: Minutes;
   userId: string;
-  status: BookingType;
+  status: string;
 }
 
-export interface IBooking extends Booking {
+export interface IBooking extends Exclude<Booking, 'duration'> {
+  id: string;
   title: string;
   date: string;
-  startTime: moment.Moment;
-  endTime: moment.Moment;
+  duration: number;
+  startTime: Date;
+  endTime: Date;
   conflictWith?: string[];
 }

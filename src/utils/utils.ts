@@ -1,11 +1,7 @@
-import * as Moment from 'moment';
 import { Booking, BookingType, IBooking } from '../types';
 import { v4 as uuidv4 } from 'uuid';
-import keyBy from 'lodash.keyby';
 import groupBy from 'lodash.groupby';
-
-import { extendMoment } from 'moment-range';
-const moment = extendMoment(Moment);
+import { format, add, areIntervalsOverlapping } from 'date-fns';
 
 // TODO test data ... make sure no white spce
 export const toJSON = (csv: string | null | any): Booking[] | null => {
@@ -19,7 +15,7 @@ export const toJSON = (csv: string | null | any): Booking[] | null => {
       const obj: any = {};
       const line = l.split(',');
 
-      headers.map((h: string, i: number) => {
+      headers.forEach((h: string, i: number) => {
         if (line[i]) {
           obj[h.trim()] = line[i].trim();
         }
@@ -37,21 +33,18 @@ export const toJSON = (csv: string | null | any): Booking[] | null => {
 };
 
 // TODO do we need this? write test, also double check typings for Ibooking
-export const convertBooking = (bookings: Booking[] | IBooking[]) => {
-  return bookings.map((booking, index) => {
+export const decorateBooking = (bookings: Booking[] | IBooking[]) => {
+  return bookings.map((booking) => {
+    const startTime = new Date(booking.time);
     return {
       ...booking,
-      // convert time to ensure matches Date.parse value
-      time: moment(booking.time).unix() * 1000,
-      date: moment(booking.time).format('YYYY-MM-DD'),
+      duration: Number(booking.duration),
+      time: startTime.getTime(),
+      date: format(startTime, 'yyyy-MM-dd'),
       id: booking.id ?? uuidv4(),
       title: `Booking with user ${booking.userId}`,
-      startTime: moment(booking.time),
-      // TODO clean this up in the toJSON cleanup
-      endTime:
-        booking.status === BookingType.New
-          ? moment(booking.time).add(booking.duration, 'm')
-          : moment(booking.time).add(booking.duration, 'ms'),
+      startTime: startTime,
+      endTime: add(startTime, { minutes: Number(booking.duration) }),
     };
   });
 };
@@ -68,7 +61,6 @@ export const markBookingConflicts = (
   console.log(keyedExistingObject);
 
   const something = newBookings.map((newBook: IBooking) => {
-    const newBookRange = moment.range(newBook.startTime, newBook.endTime);
     const bookingDate = newBook.date;
     const existingMatchingBookingDate = keyedExistingObject[bookingDate];
     console.log(existingMatchingBookingDate);
@@ -76,11 +68,11 @@ export const markBookingConflicts = (
 
     if (existingMatchingBookingDate) {
       existingMatchingBookingDate.forEach((bookingToCheck) => {
-        const existingBookRange = moment.range(
-          bookingToCheck.startTime,
-          bookingToCheck.endTime
+        const isOverlapped = areIntervalsOverlapping(
+          { start: newBook.startTime, end: newBook.endTime },
+          { start: bookingToCheck.startTime, end: bookingToCheck.endTime }
         );
-        if (newBookRange.overlaps(existingBookRange)) {
+        if (isOverlapped) {
           overlapped.push(bookingToCheck.id);
         }
       });

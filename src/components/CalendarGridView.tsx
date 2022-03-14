@@ -1,18 +1,18 @@
 import { useEffect } from 'react';
-import moment from 'moment';
 import { Box, Container, Flex, Grid, GridItem } from '@chakra-ui/layout';
 import { generateCalendarHeader } from './CalendarHeader';
-import { Booking, BookingType, IBooking } from '../types';
+import { BookingType, IBooking } from '../types';
 import cssStyles from './calendar.module.css';
 import cx from 'classnames';
+import { format, getDaysInMonth } from 'date-fns';
 
 interface CalendarProps {
   bookings: IBooking[];
   newBookings: IBooking[];
 }
 
-const startMonth = '2020-03';
-const daysInMonth = moment(startMonth).daysInMonth();
+const startMonth = new Date(2020, 2);
+const daysInMonth = getDaysInMonth(startMonth);
 
 export const GridCalendar = ({ bookings, newBookings }: CalendarProps) => {
   const generateMonthRow = () => {
@@ -22,7 +22,7 @@ export const GridCalendar = ({ bookings, newBookings }: CalendarProps) => {
     for (let day = 0; day < daysInMonth; day++) {
       const labelColumn = (
         <GridItem className={cssStyles.row}>
-          {moment(`${startMonth}-${day + 1}`).format('DD/MM')}
+          {format(new Date(2020, 2, day + 1), 'dd-MM')}
         </GridItem>
       );
       const columns = [labelColumn, generatedColumns[day]];
@@ -45,12 +45,12 @@ export const GridCalendar = ({ bookings, newBookings }: CalendarProps) => {
   const generateTableColumn = (bookings: IBooking[]) => {
     const monthArray = Array(daysInMonth);
     bookings.forEach((booking) => {
-      const itemBookingDate = moment(booking.time).date();
+      const itemBookingDate = booking.startTime.getDate();
       debugger;
       const element = (
         <GridItem
-          gridColumnStart={moment(booking.startTime).hour() + 2}
-          gridColumnEnd={moment(booking.endTime).hour() + 2}
+          gridColumnStart={booking.startTime.getHours() + 2}
+          gridColumnEnd={booking.endTime.getHours() + 2}
           gridRowStart={1}
           alignSelf="center"
         >
@@ -62,7 +62,7 @@ export const GridCalendar = ({ bookings, newBookings }: CalendarProps) => {
             })}
           >
             <span>Booking with {booking.userId}</span>
-            <span>at {moment(booking.time).format('hh:mm a')}</span>
+            <span>at {format(booking.startTime, 'hh:mm aaa')}</span>
           </Flex>
         </GridItem>
       );

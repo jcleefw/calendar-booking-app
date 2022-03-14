@@ -3,7 +3,7 @@ import Dropzone from 'react-dropzone';
 import './App.css';
 import { GridCalendar } from './components/CalendarGridView';
 import { Booking, BookingType, IBooking } from './types';
-import { convertBooking, markBookingConflicts, toJSON } from './utils/utils';
+import { decorateBooking, markBookingConflicts, toJSON } from './utils/utils';
 
 const apiUrl = 'http://localhost:3001';
 
@@ -21,7 +21,7 @@ export const App = () => {
             return item;
           });
         })
-        .then((result) => convertBooking(result))
+        .then((result) => decorateBooking(result))
         .then(setBookings);
     }
   }, [bookings, newBookings]);
@@ -41,12 +41,13 @@ export const App = () => {
               return item;
             });
             if (parsedBookings) {
-              const convertedBookings = convertBooking(parsedBookings);
+              console.log(JSON.stringify(parsedBookings));
+              const convertedBookings = decorateBooking(parsedBookings);
               const sanitizeBookings = markBookingConflicts(
                 bookings,
                 convertedBookings
               );
-              console.log(sanitizeBookings);
+              // console.log(sanitizeBookings);
               setNewBookings(sanitizeBookings);
             }
           }
