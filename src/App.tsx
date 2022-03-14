@@ -4,6 +4,7 @@ import Dropzone from 'react-dropzone';
 import './App.css';
 import { GridCalendar } from './components/CalendarGridView';
 import { Booking, BookingType, IBooking } from './types';
+import { postData } from './utils/fetch';
 import { decorateBooking, markBookingConflicts, toJSON } from './utils/helpers';
 
 const apiUrl = 'http://localhost:3001';
@@ -14,16 +15,20 @@ export const App = () => {
   const [isConfirmBooking, setConfirmingBooking] = useState(false);
 
   const fetchBookings = async () => {
-    return await fetch(`${apiUrl}/bookings`)
-      .then((response) => response.json())
-      .then((result) => {
-        return result.map((item: Booking) => {
-          item['status'] = BookingType.Existing;
-          return item;
-        });
-      })
-      .then((result) => decorateBooking(result))
-      .then(setBookings);
+    try {
+      return await fetch(`${apiUrl}/bookings`)
+        .then((response) => response.json())
+        .then((result) => {
+          return result.map((item: Booking) => {
+            item['status'] = BookingType.Existing;
+            return item;
+          });
+        })
+        .then((result) => decorateBooking(result))
+        .then(setBookings);
+    } catch (err) {
+      console.error('Opps, something wrong happened', err);
+    }
   };
 
   useEffect(() => {
@@ -47,26 +52,37 @@ export const App = () => {
               return item;
             });
             if (parsedBookings) {
-              console.log(JSON.stringify(parsedBookings));
               const convertedBookings = decorateBooking(parsedBookings);
               const sanitizeBookings = markBookingConflicts(
                 bookings,
                 convertedBookings
               );
-              // console.log(sanitizeBookings);
               setNewBookings(sanitizeBookings);
             }
           }
         };
         reader.readAsBinaryString(files[0]);
       } catch (err) {
-        console.log('err reading file', err, files[0]);
+        console.error('err reading file', err, files[0]);
       }
     }
   };
 
-  const confirmBooking = (e: React.MouseEvent | React.KeyboardEvent) => {
-    console.log('confirming booking');
+  const confirmBooking = async (e: React.MouseEvent | React.KeyboardEvent) => {
+    const mergedBookings = [...bookings, ...newBookings].filter(
+      (booking) => booking.status !== BookingType.Conflict
+    );
+    const bookingsWithConflict = newBookings.filter(
+      (booking) => booking.status === BookingType.Conflict
+    );
+    setConfirmingBooking(true);
+    await postData(mergedBookings).then((response) => {
+      setConfirmingBooking(false);
+      setNewBookings([]);
+      console.log('bookings dropped', bookingsWithConflict);
+      fetchBookings();
+      return response;
+    });
   };
 
   return (

@@ -6,7 +6,7 @@ export const generateCalendarHeader = () => {
   const headers = [];
   for (let count = 0; count < 24; count++) {
     headers.push(
-      <GridItem className={styles.headerColumn}>
+      <GridItem key={`column-header-${count}`} className={styles.headerColumn}>
         <Flex className={styles.headerColumnDesc}>
           <chakra.span className={styles.headerDescHour}>{`${
             count === 0 ? 12 : count > 12 ? count - 12 : count
@@ -19,13 +19,19 @@ export const generateCalendarHeader = () => {
     );
   }
   return (
-    <GridItem className={styles.headerRow}>
+    <GridItem key={'header'} className={styles.headerRow}>
       <Grid
         templateColumns="100px repeat(24, 1fr)"
         templateRows="repeat(1, 1fr)"
         gridColumnGap="1px"
       >
-        {[<GridItem className={styles.headerColumn}>{``}</GridItem>, headers]}
+        {[
+          <GridItem
+            key={`column-header-empty`}
+            className={styles.headerColumn}
+          >{``}</GridItem>,
+          headers,
+        ]}
       </Grid>
     </GridItem>
   );

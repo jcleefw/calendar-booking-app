@@ -84,12 +84,10 @@ export const markBookingConflicts = (
     existingBookings,
     (object: IBooking) => object.date
   );
-  console.log(keyedExistingObject);
 
   const something = newBookings.map((newBook: IBooking) => {
     const bookingDate = newBook.date;
     const existingMatchingBookingDate = keyedExistingObject[bookingDate];
-    console.log(existingMatchingBookingDate);
     const overlapped: string[] = [];
 
     if (existingMatchingBookingDate) {

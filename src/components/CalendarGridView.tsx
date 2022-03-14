@@ -1,10 +1,10 @@
 import { useEffect } from 'react';
 import { Box, Container, Flex, Grid, GridItem } from '@chakra-ui/layout';
 import { generateCalendarHeader } from './CalendarHeader';
-import { BookingType, IBooking } from '../types';
+import { IBooking } from '../types';
 import cssStyles from './calendar.module.css';
-import cx from 'classnames';
 import { format, getDaysInMonth } from 'date-fns';
+import { generateGridColumn } from './GridColumn';
 
 interface CalendarProps {
   bookings: IBooking[];
@@ -12,23 +12,22 @@ interface CalendarProps {
 }
 
 const startMonth = new Date(2020, 2);
-const daysInMonth = getDaysInMonth(startMonth);
+export const daysInMonth = getDaysInMonth(startMonth);
 
 export const GridCalendar = ({ bookings, newBookings }: CalendarProps) => {
   const generateMonthRow = () => {
     const rows = [];
-    const generatedColumns = generateTableColumn([...bookings, ...newBookings]);
+    const generatedColumns = generateGridColumn([...bookings, ...newBookings]);
 
     for (let day = 0; day < daysInMonth; day++) {
       const labelColumn = (
-        <GridItem className={cssStyles.row}>
+        <GridItem key={`month-label-${day}`} className={cssStyles.row}>
           {format(new Date(2020, 2, day + 1), 'dd-MM')}
         </GridItem>
       );
       const columns = [labelColumn, generatedColumns[day]];
-
       rows.push(
-        <GridItem className={cssStyles.row}>
+        <GridItem key={`month-row-${day}`} className={cssStyles.row}>
           <Grid
             templateColumns="100px repeat(24, 1fr)"
             templateRows="repeat(3, 1fr)"
@@ -40,48 +39,6 @@ export const GridCalendar = ({ bookings, newBookings }: CalendarProps) => {
       );
     }
     return [generateCalendarHeader(), rows];
-  };
-
-  const generateTableColumn = (bookings: IBooking[]) => {
-    const monthArray = Array(daysInMonth);
-    bookings.forEach((booking) => {
-      const itemBookingDate = booking.startTime.getDate();
-      debugger;
-      const element = (
-        <GridItem
-          gridColumnStart={booking.startTime.getHours() + 2}
-          gridColumnEnd={booking.endTime.getHours() + 2}
-          gridRowStart={1}
-          alignSelf="center"
-        >
-          <Flex
-            className={cx(cssStyles.bookings, {
-              [cssStyles.booked]: booking.status === BookingType.Existing,
-              [cssStyles.new]: booking.status === BookingType.New,
-              [cssStyles.conflict]: booking.status === BookingType.Conflict,
-            })}
-          >
-            {booking.status === BookingType.Conflict && (
-              <span>Conflict for {booking.userId}</span>
-            )}
-            {booking.status === BookingType.Existing && (
-              <span>Booking with {booking.userId}</span>
-            )}
-            {booking.status === BookingType.New && (
-              <span>New Booking with {booking.userId}</span>
-            )}
-
-            <span>at {format(booking.startTime, 'hh:mm aaa')}</span>
-          </Flex>
-        </GridItem>
-      );
-      if (monthArray[itemBookingDate - 1]) {
-        monthArray[itemBookingDate - 1].push(element);
-      } else {
-        monthArray[itemBookingDate - 1] = [element];
-      }
-    });
-    return monthArray;
   };
 
   useEffect(() => {
